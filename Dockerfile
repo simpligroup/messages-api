@@ -1,17 +1,14 @@
-FROM python:3.11-slim-buster
+FROM python:3.11-slim
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-ARG GH_USER
-ARG GH_PAT
 
 # Configure env
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     POETRY_VERSION=1.4.2 \
     POETRY_HOME="/usr/src/poetry" \
-    POETRY_CACHE_DIR="/usr/src/poetry/cache" \
-    POETRY_VIRTUALENVS_IN_PROJECT="true"
+    POETRY_CACHE_DIR="/usr/src/poetry/cache" 
 
 ENV PATH="$POETRY_HOME/bin:$PATH"
 
@@ -29,19 +26,15 @@ RUN set -ex; \
     rm -rf /var/lib/apt/lists/*
 
 # Install Poetry
-RUN curl -sSL https://install.python-poetry.org | python3 - && \
-    poetry config http-basic.fastapi-auth-utils "$GH_USER" "$GH_PAT"
+RUN curl -sSL https://install.python-poetry.org | python3 -
 
-WORKDIR /code
+WORKDIR /usr/src/app
 
 COPY pyproject.toml poetry.lock ./
 
-# Install dependencies
-RUN poetry install
+RUN poetry config virtualenvs.create false \
+    && poetry install $(test "$YOUR_ENV" == production && echo "--no-dev") --no-interaction --no-ansi
 
-# Set commands
-COPY src/app .
+COPY . .
 
-ENTRYPOINT ["/usr/src/entrypoint"]
-
-CMD ["uvicorn", "app.main:app", "--host 0.0.0.0", "--port 8000", "--reload"]
+CMD ["uvicorn", "src.app.main:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "8000"]
