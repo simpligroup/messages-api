@@ -35,12 +35,6 @@ else
 	@cp ./.env.development.example ./.env
 endif
 
-ifneq (,$(wildcard ./public-keys.json))
-	@echo "Skipping step, public-keys.json file already exists"
-else
-	@echo '{"realm_name": "pub key without BEGIN PUBLIC KEY and END PUBLIC KEY fragments"}' >> ./public-keys.json
-	@echo "public-keys.json file created, ensure to complete"
-endif
 
 # install project
 build:
@@ -57,7 +51,7 @@ build-cache:
 
 # run unit tests
 tests:
-	@docker-compose run $(service) pytest --cov=src/ --cov-report=html:reports/html_dir --cov-report=xml:reports/coverage.xml --feature features -vv src/tests/ 
+	@docker-compose run $(service) pytest --cov=src/ --cov-report=html:cover/html_dir --cov-report=xml:cover/coverage.xml --feature features -vv src/tests/ 
 
 # uninstall project
 clean:

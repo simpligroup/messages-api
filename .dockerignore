@@ -2,7 +2,5 @@
 !.local/*
 docker-compose.yml
 Dockerfile
-Dockerfile.build
 README.md
 Makefile
-./service/tests

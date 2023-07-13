@@ -20,6 +20,7 @@ RUN set -ex; \
     git \
     vim \
     openssh-server \
+    iputils-ping \
     curl; \
     \
     apt-get clean; \
@@ -35,6 +36,13 @@ COPY pyproject.toml poetry.lock ./
 RUN poetry config virtualenvs.create false \
     && poetry install $(test "$YOUR_ENV" == production && echo "--no-dev") --no-interaction --no-ansi
 
+COPY .local/entrypoint .local/start_* /usr/src/
+RUN set -ex; \
+    chmod +x /usr/src/entrypoint; \
+    chmod +x /usr/src/start_api
+
 COPY . .
 
-CMD ["uvicorn", "src.app.main:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["/usr/src/entrypoint"]
+
+CMD ["/usr/src/start_api"]
