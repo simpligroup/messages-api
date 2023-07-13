@@ -1,0 +1,51 @@
+name: PR Qualiti
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+
+      - name: Run make script for build and tests
+        run: |
+          make create-env
+          make build
+
+  sonarq_analysis:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+
+      - name: Set up environment
+        run: |
+          make create-env
+          docker compose -f docker-compose.yml up -d
+
+      - name: Run make script for tests and coverage
+        run: |
+          make tests
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-report
+          path: cover
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@master
+        with:
+          sonar-token: ${{ secrets.SONAR_TOKEN }}
+          coverage-report-path: cover/coverage.xml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

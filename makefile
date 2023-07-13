@@ -29,11 +29,7 @@ code:
 	@code .
 
 create-env:
-ifneq (,$(wildcard ./.env))
-	@echo "Skipping step, .env file already exists"
-else
 	@cp ./.env.development.example ./.env
-endif
 
 
 # install project
