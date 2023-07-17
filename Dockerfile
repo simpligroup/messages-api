@@ -29,7 +29,7 @@ RUN set -ex; \
 # Install Poetry
 RUN curl -sSL https://install.python-poetry.org | python3 -
 
-WORKDIR /usr/src/app
+WORKDIR /code
 
 COPY pyproject.toml poetry.lock ./
 
@@ -43,6 +43,6 @@ RUN set -ex; \
 
 COPY . .
 
-ENTRYPOINT ["/usr/src/entrypoint"]
+#ENTRYPOINT ["/usr/src/entrypoint"]
 
 CMD ["/usr/src/start_api"]

@@ -17,7 +17,7 @@ help:
 
 # start project
 up:
-	@docker-compose up
+	@docker-compose up -d
 
 # interactive shell
 shell:
@@ -47,7 +47,7 @@ build-cache:
 
 # run unit tests
 tests:
-	@docker-compose run $(service) pytest --cov=src/ --cov-report=html:cover/html_dir --cov-report=xml:cover/coverage.xml --feature features -vv src/tests/ 
+	@docker-compose run $(service) python -m pytest --cov=src/ --cov-report=html:cover/html_dir --cov-report=xml:cover/coverage.xml --feature features -vv src/tests/ 
 
 # uninstall project
 clean:

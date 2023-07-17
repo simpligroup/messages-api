@@ -13,7 +13,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./:/usr/src/app:delegated
+      - ./:/code:delegated
     networks:
       - mongodb_network
       - rabbit_network
