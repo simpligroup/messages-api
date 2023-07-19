@@ -4,7 +4,9 @@ from fastapi.testclient import TestClient
 from src.app.main import app
 import json
 
-scenarios("create_channel.feature", "manage_consumer.feature")
+scenarios(
+    "create_channel.feature", "manage_consumer.feature", "manage_subscriptions.feature"
+)
 
 client = TestClient(app)
 request_body = ""
@@ -17,10 +19,11 @@ def set_body(body):
     request_body = json.loads(body)
 
 
-@when(parsers.parse('I send a PUT request to "{url}" with the body'))
-def send_put_request(url):
+@when(parsers.parse('I send a "{method}" request to "{url}" with the body'))
+def send_put_request(method, url):
     global response
-    response = client.put(url, json=request_body)
+
+    response = client.request(method, url, json=request_body)
 
 
 @then(parsers.parse('the response status code should be "{code}"'))

@@ -11,7 +11,7 @@ Feature: Create a new channel
         "name": "leads-creation"
       }
       """
-    When I send a PUT request to "/channels/ef8ac118-8d7f-49cc-abec-78e0d05af80a" with the body
+    When I send a "PUT" request to "/channels/ef8ac118-8d7f-49cc-abec-78e0d05af80a" with the body
     Then the response status code should be "201"
     And the response should be empty
 
@@ -23,7 +23,7 @@ Feature: Create a new channel
         "name": "leads_creation"
       }
       """
-    When I send a PUT request to "/channels/ef8ac118-8d7f-49cc-abec-78e0d05af80a" with the body
+    When I send a "PUT" request to "/channels/ef8ac118-8d7f-49cc-abec-78e0d05af80a" with the body
     Then the response status code should be "422"
 
   Scenario: An valid existing channel
@@ -34,7 +34,7 @@ Feature: Create a new channel
         "name": "leads-creation"
       }
       """
-    When I send a PUT request to "/channels/ef8ac118-8d7f-49cc-abec-78e0d05af80a" with the body
+    When I send a "PUT" request to "/channels/ef8ac118-8d7f-49cc-abec-78e0d05af80a" with the body
     Given The body:
       """
       {
@@ -42,7 +42,7 @@ Feature: Create a new channel
         "name": "leads-creation"
       }
       """
-    When I send a PUT request to "/channels/ef8ac118-8d7f-49cc-abec-78e0d05af80a" with the body
+    When I send a "PUT" request to "/channels/ef8ac118-8d7f-49cc-abec-78e0d05af80a" with the body
     Then the response status code should be "200"
     And the response should be empty
 
@@ -54,7 +54,7 @@ Feature: Create a new channel
         "name": "leads-creation"
       }
       """
-    When I send a PUT request to "/channels/ef8ac118-8d7f-49cc-abec-78e0d05af80a" with the body
+    When I send a "PUT" request to "/channels/ef8ac118-8d7f-49cc-abec-78e0d05af80a" with the body
     Given The body:
       """
       {
@@ -62,7 +62,7 @@ Feature: Create a new channel
         "name": "other-name"
       }
       """
-    When I send a PUT request to "/channels/ef8ac118-8d7f-49cc-abec-78e0d05af80a" with the body
+    When I send a "PUT" request to "/channels/ef8ac118-8d7f-49cc-abec-78e0d05af80a" with the body
     Then the response status code should be "409"
 
   
@@ -74,7 +74,7 @@ Feature: Create a new channel
         "name": "leads-creation"
       }
       """
-    When I send a PUT request to "/channels/j2fyo50q-8d7f-49cc-abec-78e0d05af440" with the body
+    When I send a "PUT" request to "/channels/j2fyo50q-8d7f-49cc-abec-78e0d05af440" with the body
     Then the response status code should be "409"
 
   Scenario: Trying to create a channel with diferent Ids
@@ -85,5 +85,5 @@ Feature: Create a new channel
         "name": "leads-creation"
       }
       """
-    When I send a PUT request to "/channels/ef8ac118-8d7f-49cc-abec-78e0d05af80a" with the body
+    When I send a "PUT" request to "/channels/ef8ac118-8d7f-49cc-abec-78e0d05af80a" with the body
     Then the response status code should be "422"

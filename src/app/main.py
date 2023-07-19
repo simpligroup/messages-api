@@ -26,6 +26,12 @@ class Consumer(BaseModel):
     services: List[Service]
 
 
+class Subscription(BaseModel):
+    channelName: str
+    consumerName: str
+    serviceName: str
+
+
 class ChannelConflictException(Exception):
     "Existing channel with some of this attributes"
     pass
@@ -42,6 +48,7 @@ client = MongoClient(os.getenv("MONGODB_URL", "Nothing was set"))
 db = client[os.getenv("MONGO_INITDB_DATABASE", "Nothing was set")]
 channel_collection = db["channels"]
 consumer_collection = db["consumers"]
+subscription_collection = db["subscriptions"]
 
 
 class ChannelRepository:
@@ -74,12 +81,21 @@ class ConsumerRepository:
         return consumer_collection.find_one({"name": consumer_name})
 
 
+class SubscriptionRepository:
+    def create_subscription(self, subscription: Subscription):
+        subscription_collection.insert_one(subscription.model_dump())
+
+    def find_subscription(self, subscription: Subscription):
+        return subscription_collection.find_one(subscription.model_dump())
+
+
 # Controller
 
 app = FastAPI()
 
 channel_repository = ChannelRepository()
 consumer_repository = ConsumerRepository()
+subscription_repository = SubscriptionRepository()
 
 
 @app.put("/channels/{channel_id}")
@@ -92,6 +108,7 @@ def read_item(channel_id: str, channel: Channel, response: Response):
         )
 
     try:
+        # business logic
         existing_channel = channel_repository.find_channel_by_name(channel.name)
 
         if existing_channel is None:
@@ -130,8 +147,8 @@ def read_item(consumer_id: str, consumer: Consumer, response: Response):
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="Ids do not match",
             )
-
     try:
+        # business logic
         existing_consumer = consumer_repository.find_consumer_by_name(consumer.name)
 
         if existing_consumer is None:
@@ -150,6 +167,62 @@ def read_item(consumer_id: str, consumer: Consumer, response: Response):
 
     except ConsumerConflictException as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@app.post("/subscriptions")
+def read_item(subscription: Subscription, response: Response):
+    # Validations
+    if (
+        (subscription.channelName is None or subscription.channelName == "")
+        or (subscription.consumerName is None or subscription.consumerName == "")
+        or (subscription.serviceName is None or subscription.serviceName == "")
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Ids do not match"
+        )
+
+    try:
+        # business logic
+
+        existing_channel = channel_repository.find_channel_by_name(
+            subscription.channelName
+        )
+
+        if existing_channel is None:
+            response.status_code = status.HTTP_404_NOT_FOUND
+            return None
+
+        existing_consumer = consumer_repository.find_consumer_by_name(
+            subscription.consumerName
+        )
+
+        if existing_consumer is None:
+            response.status_code = status.HTTP_404_NOT_FOUND
+            return None
+
+        existing_service = [
+            service
+            for service in existing_consumer["services"]
+            if service["name"] == subscription.serviceName
+        ]
+
+        if len(existing_service) == 0:
+            response.status_code = status.HTTP_404_NOT_FOUND
+            return None
+
+        existing_subscription = subscription_repository.find_subscription(subscription)
+
+        if existing_subscription:
+            response.status_code = status.HTTP_200_OK
+            return None
+
+        subscription_repository.create_subscription(subscription)
+        response.status_code = status.HTTP_201_CREATED
+        return None
+
     except Exception as e:
         print(e)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)

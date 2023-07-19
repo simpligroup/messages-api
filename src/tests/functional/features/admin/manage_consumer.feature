@@ -1,9 +1,10 @@
 Feature: Create a new consumer
-  In order to have consumers through which messages are sent 
+  In order to have consumers which will subscribe to channels 
   As a user with admin permissions
-  I want to create a new consumer
+  I want to manage consumers
 
   Scenario: A valid non existing consumer
+  
     Given The body:
       """
       {
@@ -19,7 +20,7 @@ Feature: Create a new consumer
         ]
       }
       """
-    When I send a PUT request to "/consumers/ef8ac118-8d7f-49cc-abec-78e0d05af80a" with the body
+    When I send a "PUT" request to "/consumers/ef8ac118-8d7f-49cc-abec-78e0d05af80a" with the body
     Then the response status code should be "201"
     And the response should be empty
 
@@ -45,7 +46,7 @@ Feature: Create a new consumer
         ]
       }
       """
-    When I send a PUT request to "/consumers/ef8ac118-8d7f-49cc-abec-78e0d05af80a" with the body
+    When I send a "PUT" request to "/consumers/ef8ac118-8d7f-49cc-abec-78e0d05af80a" with the body
     Then the response status code should be "200"
     And the response should be empty
 
@@ -58,7 +59,7 @@ Feature: Create a new consumer
         "services": []
       }
       """
-    When I send a PUT request to "/consumers/56d09f90-2511-11ee-be56-0242ac120002" with the body
+    When I send a "PUT" request to "/consumers/56d09f90-2511-11ee-be56-0242ac120002" with the body
     Then the response status code should be "422"
 
   Scenario: An invalid consumer, the ids do not match
@@ -77,7 +78,7 @@ Feature: Create a new consumer
         ]
       }
       """
-    When I send a PUT request to "/consumers/56d0a5e4-2511-11ee-be56-0242ac120002" with the body
+    When I send a "PUT" request to "/consumers/56d0a5e4-2511-11ee-be56-0242ac120002" with the body
     Then the response status code should be "422"
   
   Scenario: An invalid consumer, bad naming
@@ -97,7 +98,7 @@ Feature: Create a new consumer
         ]
       }
       """
-    When I send a PUT request to "/consumers/56d0a80a-2511-11ee-be56-0242ac120002" with the body
+    When I send a "PUT" request to "/consumers/56d0a80a-2511-11ee-be56-0242ac120002" with the body
     Then the response status code should be "422"
 
   
@@ -117,7 +118,7 @@ Feature: Create a new consumer
         ]
       }
       """
-    When I send a PUT request to "/consumers/56d0a80a-2511-11ee-be56-0242ac120002" with the body
+    When I send a "PUT" request to "/consumers/56d0a80a-2511-11ee-be56-0242ac120002" with the body
     Then the response status code should be "422"
   
   Scenario: Trying to create a consumer with an existing consumer name
@@ -136,7 +137,7 @@ Feature: Create a new consumer
         ]
       }
       """
-    When I send a PUT request to "/consumers/56d0aa76-2511-11ee-be56-0242ac120002" with the body
+    When I send a "PUT" request to "/consumers/56d0aa76-2511-11ee-be56-0242ac120002" with the body
     Then the response status code should be "409"
 
 
@@ -156,7 +157,7 @@ Feature: Create a new consumer
         ]
       }
       """
-    When I send a PUT request to "/consumers/56d0b62e-2511-11ee-be56-0242ac120002" with the body
+    When I send a "PUT" request to "/consumers/56d0b62e-2511-11ee-be56-0242ac120002" with the body
     Given The body:
       """
       {
@@ -172,5 +173,5 @@ Feature: Create a new consumer
         ]
       }
       """
-    When I send a PUT request to "/consumers/56d0b62e-2511-11ee-be56-0242ac120002" with the body
+    When I send a "PUT" request to "/consumers/56d0b62e-2511-11ee-be56-0242ac120002" with the body
     Then the response status code should be "409"
