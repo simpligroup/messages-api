@@ -1,0 +1,59 @@
+#!/bin/bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+setup_ready() {
+python << END
+import sys
+import os
+import pika
+from pymongo import MongoClient
+
+mongodb_url = os.getenv("MONGODB_URL", "Nothing was set")
+
+try:
+    print ("Checking MongoDB")
+    client = MongoClient(host = [mongodb_url], serverSelectionTimeoutMS = 2000)
+    client.server_info()
+    print ("Mongo OK")
+except Exception as e:
+    print (e)
+    sys.exit(-1)
+
+rabbitmq_user = os.getenv("RABBITMQ_DEFAULT_USER", "Nothing was set")
+rabbitmq_pass = os.getenv("RABBITMQ_DEFAULT_PASS", "Nothing was set")
+rabbitmq_host = os.getenv("RABBITMQ_HOST", "Nothing was set")
+rabbitmq_port = os.getenv("RABBITMQ_PORT", "Nothing was set")
+
+try:
+    print ("Checking RabbitMQ")
+    credentials = pika.PlainCredentials(rabbitmq_user, rabbitmq_pass)
+    parameters = pika.ConnectionParameters(rabbitmq_host,rabbitmq_port,'/',credentials)
+    connection = pika.BlockingConnection(parameters)
+    if connection.is_open:
+        print ("RabbitMQ OK")
+    else:
+        print ("RabbitMQ connection is no open")
+        sys.exit(-1)
+        
+except Exception as e:
+    print (e)
+    sys.exit(-1)
+finally:
+    connection.close()
+
+sys.exit(0)
+
+END
+}
+
+until setup_ready; do
+  >&2 echo 'Waiting for MongoDB and RabbitMQ to become available...'
+  sleep 2
+done
+
+>&2 echo 'MongoDB and RabbitMQ are available, running the application'
+
+exec "$@"

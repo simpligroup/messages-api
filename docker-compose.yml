@@ -1,0 +1,60 @@
+version: "3.5"
+services:
+
+  mapi: &mapi
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${DOCKER_APP_PORT:-8000}:8000"
+    depends_on:
+      - mapi_mongodb
+      - mapi_rabbitmq
+    env_file:
+      - .env
+    volumes:
+      - ./:/code:delegated
+    networks:
+      - mongodb_network
+      - rabbit_network
+      
+  mapi_mongodb:
+    image: mongo:6.0.1
+    container_name: mapi_mongodb
+    env_file:
+      - .env
+    ports:
+      - ${DOCKER_MONGODB_PORT:-27017}:27017
+    volumes:
+      - ./init-mongodb:/docker-entrypoint-initdb.d
+      - ./init-mongodb/data:/tmp/data
+    networks:
+      - mongodb_network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/mapi --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  mapi_rabbitmq:
+    image: rabbitmq:3
+    container_name: mapi_rabbitmq
+    env_file:
+      - .env
+    networks:
+      - rabbit_network
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    ports:
+      - ${RABBITMQ_PORT:-5672}:5672
+
+volumes:
+  init-mongodb:
+      
+networks:
+  mongodb_network:
+  rabbit_network:
